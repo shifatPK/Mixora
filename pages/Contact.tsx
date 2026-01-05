@@ -1,7 +1,30 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Contact: React.FC = () => {
+  const [contactInfo, setContactInfo] = useState({
+      phone: '01711-728660',
+      address: 'লেভেল ৪, উত্তরা সেক্টর ৭, ঢাকা - ১২৩০, বাংলাদেশ',
+      email: 'support@mixorasmartshop.com'
+  });
+
+  useEffect(() => {
+    const fetchContact = async () => {
+        try {
+            const docSnap = await getDoc(doc(db, "siteContent", "contact"));
+            if (docSnap.exists()) {
+                setContactInfo(prev => ({...prev, ...docSnap.data()}));
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    fetchContact();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +44,7 @@ const Contact: React.FC = () => {
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-800">ফোন নাম্বার</h3>
-                        <p className="text-gray-600 mt-1">01711-728660</p>
+                        <p className="text-gray-600 mt-1">{contactInfo.phone}</p>
                         <p className="text-xs text-gray-400 mt-1">সকাল ১০টা - রাত ৮টা</p>
                     </div>
                 </div>
@@ -32,8 +55,7 @@ const Contact: React.FC = () => {
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-800">ইমেইল</h3>
-                        <p className="text-gray-600 mt-1">support@mixorasmartshop.com</p>
-                        <p className="text-gray-600 mt-1">info@mixorasmartshop.com</p>
+                        <p className="text-gray-600 mt-1">{contactInfo.email}</p>
                     </div>
                 </div>
 
@@ -44,8 +66,7 @@ const Contact: React.FC = () => {
                     <div>
                         <h3 className="font-bold text-gray-800">অফিস ঠিকানা</h3>
                         <p className="text-gray-600 mt-1">
-                            লেভেল ৪, উত্তরা সেক্টর ৭,<br/>
-                            ঢাকা - ১২৩০, বাংলাদেশ
+                            {contactInfo.address}
                         </p>
                     </div>
                 </div>

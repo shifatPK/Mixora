@@ -1,10 +1,28 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const Footer: React.FC = () => {
+  const [contactInfo, setContactInfo] = useState({
+      phone: '01711-728660',
+      address: 'Dhaka, Bangladesh',
+      email: 'support@mixora.com'
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "siteContent", "contact"), (doc) => {
+        if (doc.exists()) {
+            setContactInfo(prev => ({...prev, ...doc.data()}));
+        }
+    });
+    return () => unsub();
+  }, []);
+
   return (
-    <footer className="hidden md:block bg-[#0F172A] text-white pt-20 mt-0 font-sans border-t-4 border-transparent relative overflow-hidden">
+    <footer className="bg-[#0F172A] text-white pt-20 mt-0 font-sans border-t-4 border-transparent relative overflow-hidden">
       {/* Colorful Gradient Border Top */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500"></div>
 
@@ -31,8 +49,8 @@ const Footer: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
+          {/* Quick Links - Hidden on Mobile */}
+          <div className="hidden md:block">
             <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
                 <span className="w-1 h-6 bg-cyan-500 rounded-full"></span> কুইক লিংকস
             </h3>
@@ -44,8 +62,8 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
+          {/* Customer Service - Hidden on Mobile */}
+          <div className="hidden md:block">
             <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
                 <span className="w-1 h-6 bg-purple-500 rounded-full"></span> কাস্টমার কেয়ার
             </h3>
@@ -65,15 +83,15 @@ const Footer: React.FC = () => {
              <ul className="space-y-5 text-sm font-medium text-gray-300">
                 <li className="flex items-start gap-3 group">
                    <div className="bg-pink-500/20 p-2 rounded-lg text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition"><MapPin size={18} /></div>
-                   <span>Dhaka, Bangladesh</span>
+                   <span>{contactInfo.address}</span>
                 </li>
                 <li className="flex items-center gap-3 group">
                    <div className="bg-green-500/20 p-2 rounded-lg text-green-500 group-hover:bg-green-500 group-hover:text-white transition"><Phone size={18} /></div>
-                   <span className="font-bold text-white text-base">01711-728660</span>
+                   <span className="font-bold text-white text-base">{contactInfo.phone}</span>
                 </li>
                 <li className="flex items-center gap-3 group">
                    <div className="bg-yellow-500/20 p-2 rounded-lg text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition"><Mail size={18} /></div>
-                   <span>support@mixora.com</span>
+                   <span>{contactInfo.email}</span>
                 </li>
              </ul>
           </div>
@@ -87,10 +105,8 @@ const Footer: React.FC = () => {
                 &copy; {new Date().getFullYear()} <span className="font-bold text-white">Mixora Smart Shop</span>. All rights reserved.
               </p>
               <div className="flex items-center gap-2 text-xs text-gray-500 bg-white/5 px-4 py-2 rounded-full">
-                  <span>Made with</span>
-                  <Heart size={12} className="text-red-500 fill-red-500 animate-pulse" />
-                  <span>by</span>
-                  <span className="font-bold text-white">GrowEasy Tech</span>
+                  <span>Develop By</span>
+                  <a href="https://solutionsfirst.xyz" target="_blank" rel="noopener noreferrer" className="font-bold text-white hover:text-cyan-400 transition">Solutions First</a>
               </div>
            </div>
         </div>

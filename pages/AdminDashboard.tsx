@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, Timestamp, setDoc, getDoc } from 'firebase/firestore';
@@ -11,7 +12,7 @@ import {
   Users, ChevronLeft, ChevronRight, Truck, FileText, Printer, Store,
   LayoutDashboard, BarChart3, DollarSign, Ticket, Download, UploadCloud, Video, XCircle, Ban, Minus,
   Calendar, Activity, TrendingUp, Clock, CheckCircle, Monitor,
-  Menu
+  Menu, Phone
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { categoriesList } from '../data';
@@ -62,6 +63,11 @@ const AdminDashboard: React.FC = () => {
     },
     flashSale: { 
         endTime: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 16) // Default 5 hours later
+    },
+    contact: {
+        phone: '01711-728660',
+        address: 'Dhaka, Bangladesh',
+        email: 'support@mixora.com'
     }
   });
 
@@ -175,6 +181,10 @@ const AdminDashboard: React.FC = () => {
       if (flashSaleDoc.exists()) {
           setSiteContent(prev => ({ ...prev, flashSale: flashSaleDoc.data() as any }));
       }
+      const contactDoc = await getDoc(doc(db, 'siteContent', 'contact'));
+      if (contactDoc.exists()) {
+          setSiteContent(prev => ({ ...prev, contact: contactDoc.data() as any }));
+      }
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -190,6 +200,7 @@ const AdminDashboard: React.FC = () => {
           await setDoc(doc(db, 'siteContent', 'hero'), { slides: siteContent.heroSlides });
           await setDoc(doc(db, 'siteContent', 'middleBanner'), siteContent.middleBanner);
           await setDoc(doc(db, 'siteContent', 'flashSale'), siteContent.flashSale);
+          await setDoc(doc(db, 'siteContent', 'contact'), siteContent.contact);
           alert('Content updated successfully!');
       } catch (error) {
           console.error("Error saving content:", error);
@@ -1419,85 +1430,106 @@ const AdminDashboard: React.FC = () => {
         {/* --- CONTENT MANAGEMENT TAB --- */}
         {activeTab === 'content' && (
              <div className="space-y-8 animate-fade-in pb-10">
-                 <div className="flex justify-between items-center">
+                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">কনটেন্ট ম্যানেজমেন্ট</h2>
-                    <button onClick={handleSaveContent} disabled={uploading} className="bg-gradient-to-r from-primary to-gray-800 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform">
+                    <button onClick={handleSaveContent} disabled={uploading} className="bg-gradient-to-r from-primary to-gray-800 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform w-full md:w-auto justify-center">
                         {uploading ? <Loader2 className="animate-spin" /> : <Save size={18} />} সেভ করুন
                     </button>
                 </div>
 
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold mb-4 border-b pb-2">Top Notification Bar</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase">Message</label>
-                            <input type="text" value={siteContent.topBar.message} onChange={e => setSiteContent({...siteContent, topBar: {...siteContent.topBar, message: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase">Code</label>
-                            <input type="text" value={siteContent.topBar.code} onChange={e => setSiteContent({...siteContent, topBar: {...siteContent.topBar, code: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold mb-4 border-b pb-2">Hero Slider (Main Banner)</h3>
-                    {siteContent.heroSlides.map((slide, idx) => (
-                        <div key={idx} className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <h4 className="font-bold mb-2 text-sm text-primary">Slide {idx + 1}</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="col-span-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Image URL</label>
-                                    <input type="text" value={slide.bgImage} onChange={e => {
-                                        const newSlides = [...siteContent.heroSlides];
-                                        newSlides[idx].bgImage = e.target.value;
-                                        setSiteContent({...siteContent, heroSlides: newSlides});
-                                    }} className="w-full border p-2 rounded-lg bg-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Title</label>
-                                    <input type="text" value={slide.title} onChange={e => {
-                                        const newSlides = [...siteContent.heroSlides];
-                                        newSlides[idx].title = e.target.value;
-                                        setSiteContent({...siteContent, heroSlides: newSlides});
-                                    }} className="w-full border p-2 rounded-lg bg-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Highlight Text</label>
-                                    <input type="text" value={slide.highlight} onChange={e => {
-                                        const newSlides = [...siteContent.heroSlides];
-                                        newSlides[idx].highlight = e.target.value;
-                                        setSiteContent({...siteContent, heroSlides: newSlides});
-                                    }} className="w-full border p-2 rounded-lg bg-white" />
-                                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Contact Info Section */}
+                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 md:col-span-2">
+                        <h3 className="text-lg font-bold mb-4 border-b pb-2 flex items-center gap-2"><Phone size={18} /> Contact Info</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
+                                <input type="text" value={siteContent.contact.phone} onChange={e => setSiteContent({...siteContent, contact: {...siteContent.contact, phone: e.target.value}})} className="w-full border p-3 rounded-xl bg-gray-50 font-bold text-gray-800" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Email Address</label>
+                                <input type="text" value={siteContent.contact.email} onChange={e => setSiteContent({...siteContent, contact: {...siteContent.contact, email: e.target.value}})} className="w-full border p-3 rounded-xl bg-gray-50 font-bold text-gray-800" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Office Address</label>
+                                <input type="text" value={siteContent.contact.address} onChange={e => setSiteContent({...siteContent, contact: {...siteContent.contact, address: e.target.value}})} className="w-full border p-3 rounded-xl bg-gray-50 font-bold text-gray-800" />
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
 
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold mb-4 border-b pb-2">Middle Banner</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="col-span-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase">Image URL</label>
-                            <input type="text" value={siteContent.middleBanner.image} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, image: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase">Title</label>
-                            <input type="text" value={siteContent.middleBanner.title} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, title: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase">Badge</label>
-                            <input type="text" value={siteContent.middleBanner.badge} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, badge: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                        <h3 className="text-lg font-bold mb-4 border-b pb-2">Top Notification Bar</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Message</label>
+                                <input type="text" value={siteContent.topBar.message} onChange={e => setSiteContent({...siteContent, topBar: {...siteContent.topBar, message: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Code</label>
+                                <input type="text" value={siteContent.topBar.code} onChange={e => setSiteContent({...siteContent, topBar: {...siteContent.topBar, code: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold mb-4 border-b pb-2">Flash Sale</h3>
-                    <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase">End Time</label>
-                        <input type="datetime-local" value={siteContent.flashSale.endTime} onChange={e => setSiteContent({...siteContent, flashSale: {endTime: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                        <h3 className="text-lg font-bold mb-4 border-b pb-2">Middle Banner</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Image URL</label>
+                                <input type="text" value={siteContent.middleBanner.image} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, image: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Title</label>
+                                <input type="text" value={siteContent.middleBanner.title} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, title: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Badge</label>
+                                <input type="text" value={siteContent.middleBanner.badge} onChange={e => setSiteContent({...siteContent, middleBanner: {...siteContent.middleBanner, badge: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 md:col-span-2">
+                        <h3 className="text-lg font-bold mb-4 border-b pb-2">Hero Slider (Main Banner)</h3>
+                        {siteContent.heroSlides.map((slide, idx) => (
+                            <div key={idx} className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <h4 className="font-bold mb-2 text-sm text-primary">Slide {idx + 1}</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="col-span-1 md:col-span-2">
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Image URL</label>
+                                        <input type="text" value={slide.bgImage} onChange={e => {
+                                            const newSlides = [...siteContent.heroSlides];
+                                            newSlides[idx].bgImage = e.target.value;
+                                            setSiteContent({...siteContent, heroSlides: newSlides});
+                                        }} className="w-full border p-2 rounded-lg bg-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Title</label>
+                                        <input type="text" value={slide.title} onChange={e => {
+                                            const newSlides = [...siteContent.heroSlides];
+                                            newSlides[idx].title = e.target.value;
+                                            setSiteContent({...siteContent, heroSlides: newSlides});
+                                        }} className="w-full border p-2 rounded-lg bg-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Highlight Text</label>
+                                        <input type="text" value={slide.highlight} onChange={e => {
+                                            const newSlides = [...siteContent.heroSlides];
+                                            newSlides[idx].highlight = e.target.value;
+                                            setSiteContent({...siteContent, heroSlides: newSlides});
+                                        }} className="w-full border p-2 rounded-lg bg-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                        <h3 className="text-lg font-bold mb-4 border-b pb-2">Flash Sale</h3>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">End Time</label>
+                            <input type="datetime-local" value={siteContent.flashSale.endTime} onChange={e => setSiteContent({...siteContent, flashSale: {endTime: e.target.value}})} className="w-full border p-2 rounded-lg bg-gray-50" />
+                        </div>
                     </div>
                 </div>
              </div>

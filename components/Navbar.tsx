@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Menu, X, Search, User, Phone, LayoutDashboard, Truck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,6 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenLogin, onOpenTracking,
       message: '🎉 মিক্সোরা সুপার শপ - এ প্রথম অর্ডারে ডেলিভারি চার্জ ফ্রি! কোড:', 
       code: 'NEW24'
   });
+  const [contactPhone, setContactPhone] = useState('01711-728660');
   
   const { isAdmin, currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +34,12 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenLogin, onOpenTracking,
               setTopBarContent(doc.data() as any);
           }
       });
-      return () => unsub();
+      const unsubContact = onSnapshot(doc(db, "siteContent", "contact"), (doc) => {
+        if (doc.exists() && doc.data().phone) {
+            setContactPhone(doc.data().phone);
+        }
+      });
+      return () => { unsub(); unsubContact(); };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -102,11 +109,11 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenLogin, onOpenTracking,
               </button>
 
               {/* Phone (Desktop) */}
-              <a href="tel:01711728660" className="hidden xl:flex items-center gap-2 text-gray-600 hover:text-primary transition group">
+              <a href={`tel:${contactPhone}`} className="hidden xl:flex items-center gap-2 text-gray-600 hover:text-primary transition group">
                  <div className="bg-primary/5 p-2 rounded-full group-hover:bg-primary group-hover:text-white transition-colors"><Phone className="h-4 w-4" /></div>
                  <div className="flex flex-col leading-none">
                     <span className="text-[9px] font-bold text-gray-400 uppercase">হটলাইন</span>
-                    <span className="text-xs font-black text-gray-800">01711-728660</span>
+                    <span className="text-xs font-black text-gray-800">{contactPhone}</span>
                  </div>
               </a>
 

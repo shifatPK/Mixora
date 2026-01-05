@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import { collection, getDocs, limit, query, doc, getDoc } from 'firebase/firestore';
 import { 
   Loader2, ChevronRight, Sparkles, Tag, Truck, ShieldCheck, 
-  CreditCard, LayoutDashboard, MessageCircle, Send, Timer, ShoppingBag, Zap, ArrowRight, BookOpen, Moon
+  CreditCard, LayoutDashboard, MessageCircle, Send, Timer, ShoppingBag, Zap, ArrowRight, BookOpen, Moon, Star
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categoriesList } from '../data';
@@ -437,7 +437,7 @@ const Home: React.FC<HomeProps> = ({ addToCart }) => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span className="text-primary"><Sparkles size={24} fill="currentColor" /></span> আপনার জন্য সেরা
+              <span className="text-primary"><Star size={24} fill="currentColor" /></span> আপনার জন্য সেরা
           </h2>
           <Link to="/category/all" className="text-sm font-bold text-primary hover:underline">আরও দেখুন</Link>
         </div>
